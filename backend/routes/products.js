@@ -1,22 +1,10 @@
 const express = require("express");
-const multer = require("multer");
-const path = require("path");
 const Product = require("../models/Product");
+const upload = require("../config/multer"); // uses Cloudinary storage
 
 const router = express.Router();
 
-// Multer setup for image upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
-
-// Get all products
+// 📦 Get all products
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
@@ -26,6 +14,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// 🔍 Search
 router.get("/search", async (req, res) => {
   const query = req.query.q;
   try {
@@ -38,8 +27,7 @@ router.get("/search", async (req, res) => {
   }
 });
 
-
-// Get product by ID
+// 🔍 Get by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -50,11 +38,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Add new product
+// ➕ Add product (with Cloudinary image upload)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, description, price, category, brand, discount, stock } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : "";
+    const image = req.file ? req.file.path : ""; // Cloudinary returns full URL
 
     const product = new Product({
       name,
@@ -74,12 +62,12 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-// ✅ Update product
+// ✏️ Update product
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const updateData = req.body;
     if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+      updateData.image = req.file.path; // Cloudinary image URL
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, {
@@ -94,8 +82,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-
-// ✅ Delete product
+// ❌ Delete product
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
