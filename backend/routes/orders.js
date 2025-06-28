@@ -174,7 +174,10 @@ router.patch("/:id/cancel", async (req, res) => {
       },
     });
 
-    const cancelledTime = new Date(order.cancelledAt).toLocaleString("en-IN");
+    //const cancelledTime = new Date(order.cancelledAt).toLocaleString("en-IN");
+    const cancelledTime = new Date(order.cancelledAt).toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+});
 
     // User cancel mail
     const userMailOptions = {
