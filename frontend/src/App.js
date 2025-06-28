@@ -16,6 +16,8 @@ import MyOrders from "./pages/MyOrders";
 import OrderSuccess from "./pages/OrderSuccess";
 import "./styles.css";
 
+const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
+
 function App() {
   const [user, setUser] = useState(null);
   const [cartItems, setCartItems] = useState([]);
@@ -27,7 +29,7 @@ function App() {
 
   const fetchCartItems = async (userId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/cart/${userId}`);
+      const res = await fetch(`${BASE_URL}/api/cart/${userId}`);
       const data = await res.json();
       //console.log(data);
       const itemsWithDetails = await Promise.all(
@@ -52,7 +54,7 @@ function App() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/check", {
+        const res = await fetch(`${BASE_URL}/api/auth/check`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -93,7 +95,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch(`${BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
