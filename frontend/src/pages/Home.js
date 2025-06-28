@@ -13,7 +13,7 @@ const Home = ({ user }) => {
 
   useEffect(() => {
     axios
-      .get("${BASE_URL}/api/products")
+      .get("https://megamart-backend-piot.onrender.com/api/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.error("Error fetching products:", err));
   }, []);
