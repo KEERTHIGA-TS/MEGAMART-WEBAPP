@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "Pending",
     },
+    placedAt: Date,
     cancelledAt: Date, // ✅ Add this
   },
   { timestamps: true }
