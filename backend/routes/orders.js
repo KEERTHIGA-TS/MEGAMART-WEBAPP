@@ -43,6 +43,12 @@ router.post("/", async (req, res) => {
     order.placedAt = new Date();
     await order.save();
 
+    await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: [] } }
+    );
+
+
     const populatedOrder = await Order.findById(order._id)
     .populate("userId");
 
@@ -170,11 +176,6 @@ router.patch("/:id/cancel", async (req, res) => {
     order.status = "Cancelled";
     order.cancelledAt = new Date();
     await order.save();
-
-    await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { items: [] } }
-    );
 
 
     const transporter = nodemailer.createTransport({
