@@ -4,6 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
+
 const Signup = () => {
   const [username, setName] = useState("");
   const [email, setEmail] = useState("");
