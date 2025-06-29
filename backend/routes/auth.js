@@ -42,7 +42,7 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(401).json({ error: "Invalid password" });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "2h",
+      expiresIn: "1d",
     });
 
     user.token = token;
@@ -101,6 +101,8 @@ router.post("/logout", async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
+
+    //await User.findByIdAndUpdate(decoded.id, { token: "" });
 
     if (user && user.token === token) {
       user.token = null;
