@@ -40,9 +40,7 @@ router.post("/", async (req, res) => {
       paymentMethod,
       totalAmount: total,
     });
-    order.placedAt = new Date().toLocaleString("en-IN", {
-  timeZone: "Asia/Kolkata",
-});
+    order.placedAt = new Date();
     await order.save();
 
     const populatedOrder = await Order.findById(order._id)
@@ -56,6 +54,10 @@ router.post("/", async (req, res) => {
       },
     });
 
+    const placedTime=order.placedAt.toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+});
+
     // CUSTOMER MAIL
     const mailOptions = {
       from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
@@ -65,7 +67,7 @@ router.post("/", async (req, res) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
           <h2 style="color: #4CAF50;">✅ Thank you for shopping with MegaMart!</h2>
           <p>Hi <strong>${customer.username}</strong>, your order <strong>${order._id}</strong> was placed successfully.</p>
-          <p><strong>Placed on:</strong> ${order.placedAt}</p>
+          <p><strong>Placed on:</strong> ${placedTime}</p>
           <h3>📍 Delivery Address:</h3>
           <p>
             ${address.fullName}<br/>
@@ -109,7 +111,7 @@ router.post("/", async (req, res) => {
           <p><strong>Customer name:</strong> ${customer.username}</p>
           <p><strong>Email-id:</strong>(${customer.email})</p>
           <p><strong>Order ID:</strong> ${order._id}</p>
-          <p><strong>Placed on:</strong> ${order.placedAt}</p>
+          <p><strong>Placed on:</strong> ${placedTime}</p>
           <h3>📍 Delivery Address:</h3>
           <p>
             ${address.fullName}<br/>
@@ -166,9 +168,7 @@ router.patch("/:id/cancel", async (req, res) => {
     }
 
     order.status = "Cancelled";
-    order.cancelledAt = new Date().toLocaleString("en-IN", {
-  timeZone: "Asia/Kolkata",
-});
+    order.cancelledAt = new Date();
     await order.save();
 
     const transporter = nodemailer.createTransport({
@@ -179,7 +179,9 @@ router.patch("/:id/cancel", async (req, res) => {
       },
     });
 
-    
+    const cancelledTime=order.cancelledAt.toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+});
 
     // User cancel mail
     const userMailOptions = {
@@ -190,7 +192,7 @@ router.patch("/:id/cancel", async (req, res) => {
         <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
           <h2 style="color:#ff0000;">❌ Order Cancelled</h2>
           <p>Hi <strong>${order.userId.username}</strong>, your order <strong>${order._id}</strong> has been cancelled.</p>
-          <p><strong>Cancelled On:</strong> ${order.cancelledAt}</p>
+          <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
           <h3>📍 Delivery Address:</h3>
           <p>
             ${order.address.fullName}<br/>
@@ -234,7 +236,7 @@ router.patch("/:id/cancel", async (req, res) => {
           <p><strong>Order ID:</strong> ${order._id}</p>
           <p><strong>Customer name:</strong> ${order.userId.username}</p>
           <p><strong>Email-id:</strong>(${order.userId.email})</p>
-          <p><strong>Cancelled On:</strong> ${order.cancelledAt}</p>
+          <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
 
           <h3>📍 Delivery Address:</h3>
           <p>
