@@ -1,6 +1,6 @@
 // App.js
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,6 +21,8 @@ const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
 function App() {
   const [user, setUser] = useState(null);
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
+
 
   /*const getProductDetails = async (productId) => {
     const res = await fetch(`http://localhost:5000/api/products/${productId}`);
@@ -101,6 +103,7 @@ function App() {
       });
       setUser(null);
       setCartItems([]);
+      navigate("/login");
       toast.success("Logout successful!");
     } catch (err) {
       console.error("Logout failed", err);
