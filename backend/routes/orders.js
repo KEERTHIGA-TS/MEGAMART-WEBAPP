@@ -171,6 +171,12 @@ router.patch("/:id/cancel", async (req, res) => {
     order.cancelledAt = new Date();
     await order.save();
 
+    await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: [] } }
+    );
+
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {

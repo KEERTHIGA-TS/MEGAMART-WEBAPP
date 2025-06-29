@@ -108,7 +108,8 @@ router.post("/logout", async (req, res) => {
       user.token = null;
       await user.save();
     }
-
+    console.log(user.token === token);
+    
     res.clearCookie("token", {
       httpOnly: true,
       secure: false, // 🔒 true if using HTTPS
