@@ -103,7 +103,7 @@ function App() {
       });
       setUser(null);
       setCartItems([]);
-      window.location.href = "/login";
+      window.location.href = "/";
       toast.success("Logout successful!");
     } catch (err) {
       console.error("Logout failed", err);
