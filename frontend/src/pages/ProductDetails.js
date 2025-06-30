@@ -8,13 +8,14 @@ import 'react-medium-image-zoom/dist/styles.css';
 //import "./ProductDetails.css";
 
 const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
-const isAdmin = user?.role === "admin";
 
 const ProductDetails = ({ user, fetchCartItems }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     axios
