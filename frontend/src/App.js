@@ -141,7 +141,7 @@ function App() {
         <Route
           path="/product/:id"
           element={
-            <ProductDetails user={user} setCartItems={setCartItems} fetchCartItems={fetchCartItems} />
+            <ProductDetails user={user}  fetchCartItems={fetchCartItems} />
           }
         />
         {/* <Route path="/my-orders" element={<MyOrders user={user} />} /> */}

@@ -8,8 +8,9 @@ import 'react-medium-image-zoom/dist/styles.css';
 //import "./ProductDetails.css";
 
 const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
+const isAdmin = user?.role === "admin";
 
-const ProductDetails = ({ user, setCartItems, fetchCartItems }) => {
+const ProductDetails = ({ user, fetchCartItems }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -116,12 +117,16 @@ const ProductDetails = ({ user, setCartItems, fetchCartItems }) => {
         )}
         <h3 className="discounted-price">₹{discountedPrice.toLocaleString()}</h3>
       </div>
-
+        
         <div className="quantity-section">
-          <label>Quantity:</label>
-          <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
-          <input type="text" value={quantity} readOnly/>
-          <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+          {!isAdmin &&(
+            <>
+              <label>Quantity:</label>
+              <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
+              <input type="text" value={quantity} readOnly/>
+              <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+            </>           
+          )}
         </div>
 
         <div className="total-section">
@@ -129,20 +134,24 @@ const ProductDetails = ({ user, setCartItems, fetchCartItems }) => {
         </div>
 
         <div className="action-buttons">
-          <button
-            className="add-to-cart-btn"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-          >
-            Add to Cart
-          </button>
-          <button
-            className="buy-now-btn"
-            onClick={handleBuyNow}
-            disabled={product.stock === 0}
-          >
-            Buy Now
-          </button>
+          {!isAdmin &&(
+            <>
+              <button
+                className="add-to-cart-btn"
+                onClick={handleAddToCart}
+                disabled={product.stock === 0}
+              >
+                Add to Cart
+              </button>
+              <button
+                className="buy-now-btn"
+                onClick={handleBuyNow}
+                disabled={product.stock === 0}
+              >
+                Buy Now
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
