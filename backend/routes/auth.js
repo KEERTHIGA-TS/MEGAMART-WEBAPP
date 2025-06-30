@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+
 // POST /signup - Register only as normal user
 router.post("/signup", async (req, res) => {
   try {
@@ -105,8 +106,8 @@ router.post("/logout", async (req, res) => {
     //await User.findByIdAndUpdate(decoded.id, { token: "" });
 
     if (user && user.token === token) {
-      user.token = null;
       console.log(user.token === token);
+      user.token = null;
       await user.save();
     }
     console.log(user.token === token);
