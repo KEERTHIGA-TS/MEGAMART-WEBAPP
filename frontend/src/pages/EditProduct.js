@@ -129,7 +129,7 @@ const EditProduct = () => {
       />
       {product.image && (
         <img
-          src={product.image} // Cloudinary full URL already
+          src={`${BASE_URL}${product.image}`} // Cloudinary full URL already
           alt="Preview"
           style={{ width: "150px", marginTop: "10px" }}
         />

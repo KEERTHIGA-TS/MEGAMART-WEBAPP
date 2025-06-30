@@ -127,7 +127,13 @@ input {
   display: flex;
   flex-direction: column;
 }
-
+.auth-container input,
+.auth-container textarea,
+.auth-container button{
+    font-family: 'Roboto', sans-serif; /* or any preferred font */
+    font-size: 16px;                   /* adjust size as needed */
+    color: #333;                       /* adjust text color if needed */
+}
 .auth-container .error {
   color: red;
   font-size: 0.9rem;
@@ -633,5 +639,6 @@ input {
   background-color: #f0f0f0;
   color: black;
 }
+
 
 
