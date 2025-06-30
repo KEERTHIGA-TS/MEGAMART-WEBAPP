@@ -132,10 +132,11 @@ const EditProduct = () => {
           src={`${BASE_URL}${product.image}`} // Cloudinary full URL already
           alt="Preview"
           style={{ width: "150px", marginTop: "10px" }}
+          class = "edit-img"
         />
       )}
-      <button type="submit">Update Product</button>
-      <button type="button" onClick={handleDelete} style={{ backgroundColor: "#dc3545" }}>
+      <button type="submit" style={{ marginRight: "10px"}}>Update Product</button>
+      <button type="button" class="editDltBtn" onClick={handleDelete} style={{ backgroundColor: " #dc3545" }}>
         Delete Product
       </button>
     </form>

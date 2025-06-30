@@ -312,7 +312,14 @@ input {
 .admin-btns .edit-btn:hover {
   background-color: #e0a800;
 }
-
+.edit-img{
+  width: 130px;
+  margin-top: 10px;
+  height: 130px;
+}
+.editDltBtn:hover{
+  background-color: #c82333;
+}
 /* Delete Button */
 .admin-btns .delete-btn {
   background-color: #dc3545;
