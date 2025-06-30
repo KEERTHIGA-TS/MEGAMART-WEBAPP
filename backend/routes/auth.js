@@ -106,6 +106,7 @@ router.post("/logout", async (req, res) => {
 
     if (user && user.token === token) {
       user.token = null;
+      console.log(user.token === token);
       await user.save();
     }
     console.log(user.token === token);
