@@ -131,7 +131,9 @@ const ProductDetails = ({ user, fetchCartItems }) => {
         </div>
 
         <div className="total-section">
-          <strong>Total: ₹{(discountedPrice * quantity).toLocaleString()}</strong>
+          {!isAdmin &&(
+              <strong>Total: ₹{(discountedPrice * quantity).toLocaleString()}</strong>
+          )}
         </div>
 
         <div className="action-buttons">
