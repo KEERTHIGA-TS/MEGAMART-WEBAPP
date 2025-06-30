@@ -320,6 +320,12 @@ input {
 .editDltBtn:hover{
   background-color: #c82333;
 }
+
+.edit-form-btn-div{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
 /* Delete Button */
 .admin-btns .delete-btn {
   background-color: #dc3545;

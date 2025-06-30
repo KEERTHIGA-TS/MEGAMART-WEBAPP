@@ -135,10 +135,12 @@ const EditProduct = () => {
           class = "edit-img"
         />
       )}
+      <div class="edit-form-btn-div">
       <button type="submit" style={{ marginRight: "10px"}}>Update Product</button>
       <button type="button" class="editDltBtn" onClick={handleDelete} style={{ backgroundColor: " #dc3545" }}>
         Delete Product
       </button>
+      </div>
     </form>
   );
 };
