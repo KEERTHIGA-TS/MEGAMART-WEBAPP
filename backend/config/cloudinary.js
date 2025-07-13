@@ -7,3 +7,4 @@ cloudinary.config({
 });
 
 console.log("Cloudinary config loaded:", process.env.CLOUDINARY_CLOUD_NAME);
+module.exports = cloudinary;
