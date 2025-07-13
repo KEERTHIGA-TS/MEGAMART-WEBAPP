@@ -96,32 +96,30 @@ router.get("/check", async (req, res) => {
 
 // POST /logout - Remove token from MongoDB
 router.post("/logout", async (req, res) => {
+  console.log("🔥 Logout route hit"); // 1️⃣
   const token = req.cookies.token;
+  console.log("🍪 Token received:", token); // 2️⃣
+
   if (!token) return res.status(400).json({ error: "Token required" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
-
-    //await User.findByIdAndUpdate(decoded.id, { token: "" });
+    console.log("👤 User found:", user?.email); // 3️⃣
 
     if (user && user.token === token) {
-      console.log(user.token === token);
       user.token = null;
       await user.save();
+      console.log("✅ Token cleared from DB"); // 4️⃣
     }
-    console.log(user.token === token);
-    
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: false, // 🔒 true if using HTTPS
-      sameSite: "Lax",
-      path:"/",
-    });
+
+    res.clearCookie("token", { httpOnly: true, secure: false, sameSite: "Lax", path: "/" });
     res.json({ message: "Logged out successfully" });
   } catch (err) {
+    console.error("❌ Logout error:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 module.exports = router;

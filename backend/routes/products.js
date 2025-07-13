@@ -58,7 +58,12 @@ router.post("/", upload.single("image"), async (req, res) => {
     await product.save();
     res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ error: "Failed to create product" });
+    console.error("Error creating product:", err);
+    console.error("Error stack:", err.stack);
+    res.status(500).json({
+        error: "Failed to create product",
+        details: err.message
+    });
   }
 });
 
