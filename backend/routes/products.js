@@ -41,31 +41,38 @@ router.get("/:id", async (req, res) => {
 // ➕ Add product (with Cloudinary image upload)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
+    console.log("REQ BODY:", req.body);
+    console.log("REQ FILE:", req.file);
+
     const { name, description, price, category, brand, discount, stock } = req.body;
-    const image = req.file ? req.file.path : ""; // Cloudinary returns full URL
+    const image = req.file ? req.file.path : "";
+
+    console.log("Parsed fields:", { name, description, price, category, brand, discount, stock, image });
 
     const product = new Product({
       name,
       description,
-      price,
+      price: Number(price),
       image,
       category,
       brand,
-      discount,
-      stock,
+      discount: Number(discount),
+      stock: Number(stock),
     });
 
-    await product.save();
-    res.status(201).json(product);
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
   } catch (err) {
     console.error("Error creating product:", err);
     console.error("Error stack:", err.stack);
     res.status(500).json({
-        error: "Failed to create product",
-        details: err.message
+      error: "Failed to create product",
+      details: err.message,
+      stack: err.stack,
     });
   }
 });
+
 
 // ✏️ Update product
 router.put("/:id", upload.single("image"), async (req, res) => {
