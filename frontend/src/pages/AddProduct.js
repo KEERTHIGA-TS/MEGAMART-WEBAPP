@@ -1,6 +1,7 @@
 // AddProduct.js
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify"; 
 
 const AddProduct = () => {
   const [name, setName] = useState("");
@@ -28,12 +29,12 @@ const AddProduct = () => {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API}/api/products`, // dynamic backend URL
-        formData
-        // {
-        //   headers: { "Content-Type": "multipart/form-data" },
-        // }
+        formData,
+        {
+        headers: { "Content-Type": "multipart/form-data" },
+        }
       );
-      alert("Product added successfully");
+      toast.success("Product added successfully");
       console.log(res.data);
 
       // Optional: reset form
