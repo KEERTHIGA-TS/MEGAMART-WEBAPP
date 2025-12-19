@@ -28,12 +28,10 @@ const AddProduct = () => {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API}/api/products`, // dynamic backend URL
-        formData,
-        {
-        headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      `${process.env.REACT_APP_API}/api/products`,
+      formData
+    );
+
       toast.success("Product added successfully");
       console.log(res.data);
 
