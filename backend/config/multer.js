@@ -5,7 +5,7 @@ const cloudinary = require('./cloudinary');
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'MegaMart',
+    folder: "megamart",
     allowed_formats: ['jpg', 'jpeg', 'png'],
   },
 });
