@@ -29,12 +29,8 @@ const AddProduct = () => {
     formData.append("image", imageFile);
 
     try {
-    const res = await axios.post(
-      `${BASE_URL}/api/products`,
-      formData
-    );
-
-
+      const res = await axios.post(`${BASE_URL}/api/products`,formData);
+      
       toast.success("Product added successfully");
       console.log(res.data);
 
