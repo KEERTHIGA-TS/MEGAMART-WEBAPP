@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 
+const BASE_URL = process.env.REACT_APP_API || "http://localhost:5000";
+
 const AddProduct = () => {
   const [name, setName] = useState("");
   const [description, setDesc] = useState("");
@@ -27,10 +29,11 @@ const AddProduct = () => {
     formData.append("image", imageFile);
 
     try {
-      const res = await axios.post(
-      `${process.env.REACT_APP_API}/api/products`,
+    const res = await axios.post(
+      `${BASE_URL}/api/products`,
       formData
     );
+
 
       toast.success("Product added successfully");
       console.log(res.data);
