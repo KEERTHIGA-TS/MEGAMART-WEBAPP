@@ -30,9 +30,16 @@ const AddProduct = () => {
 
     try {
        const res = await axios.post(
-      `${BASE_URL}/api/products`,
-      formData
-    );
+          `${BASE_URL}/api/products`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true, // 🔥 needed if admin-protected
+          }
+        );
+
       
       toast.success("Product added successfully");
       console.log(res.data);
