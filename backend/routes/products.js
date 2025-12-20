@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // ➕ Add product (with Cloudinary image upload)
-router.post("/", async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     console.log("REQ BODY:", req.body);
     console.log("REQ FILE:", req.file);
