@@ -47,9 +47,11 @@ const AddProduct = () => {
       setStock("");
       setImageFile(null);
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Failed to add product");
-    }
+        console.log("Upload error full:", err);
+        console.log("Backend response:", err.response?.data);
+      
+        alert(err.response?.data?.details || "Failed to add product");
+      }
   };
 
   return (
