@@ -79,16 +79,13 @@ const ProductDetails = ({ user, fetchCartItems }) => {
       <div className="left-panel">
         <Zoom>
           <img
-            src={product.image}
+            src={
+              product.image?.startsWith("http")
+                ? product.image
+                : `${BASE_URL}${product.image}`
+            }
             alt={product.name}
-            style={{
-              width: "100%",
-              maxWidth: "400px",
-              borderRadius: "10px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            }}
           />
-
         </Zoom>
       </div>
 
