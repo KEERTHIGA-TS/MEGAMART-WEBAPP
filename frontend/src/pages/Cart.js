@@ -68,8 +68,17 @@ const Cart = ({ user, cartItems, setCartItems }) => {
       ) : (
         <>
           {cartItems.map((item) => (
-            <div key={item._id} className="cart-item">
-              <img src={`${BASE_URL}${item.image}`} alt={item.name} width={80} />
+            <div key={item._id} className="cart-item"> 
+              <img
+                src={
+                  product.image?.startsWith("http")
+                    ? product.image
+                    : `${BASE_URL}${product.image}`
+                }
+                alt={product.name}
+                width={80}
+              />
+
               <div>
                 <h4>{item.name}</h4>
                 <p>₹{item.price}</p>
