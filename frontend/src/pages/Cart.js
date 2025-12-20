@@ -71,11 +71,11 @@ const Cart = ({ user, cartItems, setCartItems }) => {
             <div key={item._id} className="cart-item"> 
               <img
                 src={
-                  product.image?.startsWith("http")
-                    ? product.image
-                    : `${BASE_URL}${product.image}`
+                  item.productId.image?.startsWith("http")
+                    ? item.productId.image
+                    : `${BASE_URL}${item.productId.image}`
                 }
-                alt={product.name}
+                alt={item.productId.name}
                 width={80}
               />
 
