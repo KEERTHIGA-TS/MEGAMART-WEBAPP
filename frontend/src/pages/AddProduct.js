@@ -48,7 +48,10 @@ const AddProduct = () => {
       setImageFile(null);
     } catch (err) {
         console.log("Upload error full:", err);
-        console.log("Backend response:", err.response?.data);
+        console.log("Response data:", err.response?.data);
+        console.log("Status:", err.response?.status);
+        console.log("Headers:", err.response?.headers);
+      
         toast.error(err.response?.data?.details || "Failed to add product");
       }
   };
