@@ -49,8 +49,7 @@ const AddProduct = () => {
     } catch (err) {
         console.log("Upload error full:", err);
         console.log("Backend response:", err.response?.data);
-      
-        alert(err.response?.data?.details || "Failed to add product");
+        toast.error(err.response?.data?.details || "Failed to add product");
       }
   };
 
