@@ -33,12 +33,10 @@ const AddProduct = () => {
           `${BASE_URL}/api/products`,
           formData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            withCredentials: true, // 🔥 needed if admin-protected
+            withCredentials: true,
           }
         );
+
 
       
       toast.success("Product added successfully");
