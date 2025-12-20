@@ -52,10 +52,12 @@ router.post("/login", async (req, res) => {
     // Set token as HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // set true if using HTTPS
-      sameSite: "Lax",
-      maxAge: 2 * 60 * 60 * 1000, // 2 hours
+      secure: true,        // 🔴 MUST be true (HTTPS)
+      sameSite: "None",    // 🔴 MUST be None (cross-site)
+       path: "/",    
+      maxAge: 24 * 60 * 60 * 1000,
     });
+    
 
     res.json({
       message: "Login successful",
@@ -113,7 +115,13 @@ router.post("/logout", async (req, res) => {
       console.log("✅ Token cleared from DB"); // 4️⃣
     }
 
-    res.clearCookie("token", { httpOnly: true, secure: false, sameSite: "Lax", path: "/" });
+   res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",    
+    });
+
     res.json({ message: "Logged out successfully" });
   } catch (err) {
     console.error("❌ Logout error:", err);
