@@ -47,7 +47,16 @@ router.post("/", upload.single("image"), async (req, res) => {
     const { name, description, price, category, brand, discount, stock } = req.body;
     const image = req.file ? req.file.path : "";
 
-    console.log("Parsed fields:", { name, description, price, category, brand, discount, stock, image });
+    console.log("Parsed fields:", {
+      name,
+      description,
+      price,
+      category,
+      brand,
+      discount,
+      stock,
+      image,
+    });
 
     const product = new Product({
       name,
@@ -63,18 +72,16 @@ router.post("/", upload.single("image"), async (req, res) => {
     const savedProduct = await product.save();
     res.status(201).json(savedProduct);
   } catch (err) {
-  console.error("Error message:", err.message);
-  console.error("Error name:", err.name);
+    console.error("Error message:", err.message);
+    console.error("Error name:", err.name);
 
-  res.status(500).json({
-    error: "Failed to create product",
-    details: err.message,
-  });
-}
-
-
+    res.status(500).json({
+      error: "Failed to create product",
+      details: err.message,
+    });
   }
 });
+
 
 
 // ✏️ Update product
