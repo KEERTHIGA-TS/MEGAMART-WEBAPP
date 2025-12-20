@@ -72,16 +72,17 @@ router.post("/", upload.single("image"), async (req, res) => {
     const savedProduct = await product.save();
     res.status(201).json(savedProduct);
   } catch (err) {
-    console.error("Error message:", err.message);
-    console.error("Error name:", err.name);
-
-    res.status(500).json({
-      error: "Failed to create product",
-      details: err.message,
-    });
-  }
+      const details =
+        typeof err.message === "string"
+          ? err.message
+          : JSON.stringify(err.message);
+    
+      res.status(500).json({
+        error: "Failed to create product",
+        details,
+      });
+    }
 });
-
 
 
 // ✏️ Update product
