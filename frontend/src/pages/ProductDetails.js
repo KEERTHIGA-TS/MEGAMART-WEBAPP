@@ -79,7 +79,7 @@ const ProductDetails = ({ user, fetchCartItems }) => {
       <div className="left-panel">
         <Zoom>
           <img
-            src={`${BASE_URL}${product.image}`}
+            src={product.image}
             alt={product.name}
             style={{
               width: "100%",
@@ -88,6 +88,7 @@ const ProductDetails = ({ user, fetchCartItems }) => {
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
             }}
           />
+
         </Zoom>
       </div>
 
