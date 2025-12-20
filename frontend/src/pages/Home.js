@@ -43,7 +43,7 @@ const Home = ({ user }) => {
       <div className="product-list">
         {products.map((product) => (
           <div className="product-card" key={product._id}>
-            <img src={`${BASE_URL}${product.image}`} alt={product.name} />
+            <img src={product.image} alt={product.name} />
             <div className="h3-div"><h3>{product.name}</h3></div>
             <p>₹{product.price}</p>
             <Link to={`/product/${product._id}`} className="details-btn">
