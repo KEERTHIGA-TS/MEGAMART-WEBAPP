@@ -1,13 +1,15 @@
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('./cloudinary');
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("./cloudinary");
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "megamart",
-    resource_type: "image",
-    allowed_formats: ['jpg', 'jpeg', 'png'],
+  params: async (req, file) => {
+    return {
+      folder: "megamart",
+      resource_type: "image",
+      format: file.mimetype.split("/")[1], // png / jpg
+    };
   },
 });
 
