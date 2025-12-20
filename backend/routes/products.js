@@ -56,8 +56,8 @@ router.post("/", upload.single("image"), async (req, res) => {
       image,
       category,
       brand,
-      discount: Number(discount),
-      stock: Number(stock),
+      discount: discount ? Number(discount) : 0,
+      stock: stock ? Number(stock) : 0,
     });
 
     const savedProduct = await product.save();
