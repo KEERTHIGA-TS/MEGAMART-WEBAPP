@@ -43,7 +43,15 @@ const Home = ({ user }) => {
       <div className="product-list">
         {products.map((product) => (
           <div className="product-card" key={product._id}>
-            <img src={product.image} alt={product.name} />
+            <img
+              src={
+                product.image?.startsWith("http")
+                  ? product.image               // Cloudinary
+                  : `${BASE_URL}${product.image}` // Old local images
+              }
+              alt={product.name}
+            />
+
             <div className="h3-div"><h3>{product.name}</h3></div>
             <p>₹{product.price}</p>
             <Link to={`/product/${product._id}`} className="details-btn">
