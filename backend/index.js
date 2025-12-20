@@ -5,7 +5,8 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 
 
-require("dotenv").config();
+require("dotenv").config();;
+require("./config/cloudinary");
 
 const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/products");
