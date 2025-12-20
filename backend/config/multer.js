@@ -6,6 +6,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "megamart",
+    resource_type: "image",
     allowed_formats: ['jpg', 'jpeg', 'png'],
   },
 });
