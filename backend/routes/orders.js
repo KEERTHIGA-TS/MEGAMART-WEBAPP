@@ -4,7 +4,9 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
-const nodemailer = require("nodemailer");
+
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Place Order
 router.post("/", async (req, res) => {
@@ -25,7 +27,6 @@ router.post("/", async (req, res) => {
       product.stock -= item.quantity;
       await product.save();
 
-      // snapshot product data
       item.name = product.name;
       item.productId = product._id.toString();
       item.price = product.price;
@@ -42,32 +43,21 @@ router.post("/", async (req, res) => {
 
     await order.save();
 
-    // clear cart
-    await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { items: [] } }
-    );
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
-    const populatedOrder = await Order.findById(order._id)
-      .populate("userId");
-
-    // 📧 Gmail App Password transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GOOGLE_MAIL,
-        pass: process.env.GOOGLE_PASS,
-      },
-    });
+    const populatedOrder = await Order.findById(order._id).populate("userId");
 
     const placedTime = order.placedAt.toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
     });
 
     // CUSTOMER MAIL
-    const mailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
+    const customerMail = {
       to: populatedOrder.userId.email,
+      from: {
+        email: process.env.FROM_EMAIL,
+        name: "MegaMart",
+      },
       subject: "🛒 Order Confirmation - MegaMart",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
@@ -93,30 +83,35 @@ router.post("/", async (req, res) => {
               </tr>
             </thead>
             <tbody>
-              ${products.map(p => `
+              ${products
+                .map(
+                  (p) => `
                 <tr>
                   <td style="padding:8px;">${p.name}</td>
                   <td style="padding:8px;">₹${p.price}</td>
                   <td style="padding:8px;">${p.quantity}</td>
                   <td style="padding:8px;">₹${p.price * p.quantity}</td>
-                </tr>
-              `).join("")}
+                </tr>`
+                )
+                .join("")}
             </tbody>
           </table>
 
           <p><strong>Payment:</strong> ${paymentMethod}</p>
           <p><strong>Total Paid:</strong> ₹${total.toLocaleString()}</p>
-
           <hr />
           <p style="text-align:center;">🧡 Thank you for shopping with us!</p>
         </div>
-      `
+      `,
     };
 
     // ADMIN MAIL
-    const adminMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
-      to: process.env.GOOGLE_MAIL,
+    const adminMail = {
+      to: process.env.FROM_EMAIL,
+      from: {
+        email: process.env.FROM_EMAIL,
+        name: "MegaMart",
+      },
       subject: "📦 New Order Received",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
@@ -124,47 +119,24 @@ router.post("/", async (req, res) => {
           <p><strong>Customer:</strong> ${customer.username} (${customer.email})</p>
           <p><strong>Order ID:</strong> ${order._id}</p>
           <p><strong>Placed on:</strong> ${placedTime}</p>
-
-          <h3>📍 Delivery Address:</h3>
-          <p>
-            ${address.fullName}<br/>
-            ${address.phone}<br/>
-            ${address.street}, ${address.city} - ${address.zip}
-          </p>
-
-          <table style="width:100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background:#eee">
-                <th style="padding:8px;">Name</th>
-                <th style="padding:8px;">Price</th>
-                <th style="padding:8px;">Qty</th>
-                <th style="padding:8px;">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${products.map(p => `
-                <tr>
-                  <td style="padding:8px;">${p.name}</td>
-                  <td style="padding:8px;">₹${p.price}</td>
-                  <td style="padding:8px;">${p.quantity}</td>
-                  <td style="padding:8px;">₹${p.price * p.quantity}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-
           <p><strong>Total:</strong> ₹${total.toLocaleString()}</p>
           <p><strong>Payment:</strong> ${paymentMethod}</p>
         </div>
-      `
+      `,
     };
 
     try {
-      await transporter.sendMail(mailOptions);
-      await transporter.sendMail(adminMailOptions);
-      console.log("Mail sent successfully!");
-    } catch(err) {
-      console.log("Mail send failed: ", err);
+      await sgMail.send(customerMail);
+      await sgMail.send(adminMail);
+      console.log("📧 Emails sent via SendGrid");
+    } catch (mailErr) {
+      console.error("❌ SendGrid Mail Error:");
+
+      if (mailErr.response && mailErr.response.body) {
+        console.error(JSON.stringify(mailErr.response.body, null, 2));
+      } else {
+        console.error(mailErr.message);
+      }
     }
 
     res.status(201).json({ message: "Order placed", order });
@@ -183,7 +155,6 @@ router.patch("/:id/cancel", async (req, res) => {
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    // restore stock
     for (let item of order.products) {
       item.productId.stock += item.quantity;
       await item.productId.save();
@@ -197,18 +168,9 @@ router.patch("/:id/cancel", async (req, res) => {
       timeZone: "Asia/Kolkata",
     });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GOOGLE_MAIL,
-        pass: process.env.GOOGLE_PASS,
-      },
-    });
-
-    // USER MAIL
-    const userMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
+    const userMail = {
       to: order.userId.email,
+      from: { email: process.env.FROM_EMAIL, name: "MegaMart" },
       subject: "❌ Order Cancelled - MegaMart",
       html: `
         <div style="font-family: Arial; max-width:600px; margin:auto; padding:20px;">
@@ -216,13 +178,12 @@ router.patch("/:id/cancel", async (req, res) => {
           <p>Hi <strong>${order.userId.username}</strong>, your order <strong>${order._id}</strong> has been cancelled.</p>
           <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
         </div>
-      `
+      `,
     };
 
-    // ADMIN MAIL
-    const adminMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
-      to: process.env.GOOGLE_MAIL,
+    const adminMail = {
+      to: process.env.FROM_EMAIL,
+      from: { email: process.env.FROM_EMAIL, name: "MegaMart" },
       subject: `⚠️ Order Cancelled: ${order._id}`,
       html: `
         <div style="font-family: Arial; max-width:600px; margin:auto; padding:20px;">
@@ -230,16 +191,21 @@ router.patch("/:id/cancel", async (req, res) => {
           <p><strong>Order ID:</strong> ${order._id}</p>
           <p><strong>Customer:</strong> ${order.userId.username} (${order.userId.email})</p>
         </div>
-      `
+      `,
     };
 
-    
     try {
-      await transporter.sendMail(userMailOptions);
-      await transporter.sendMail(adminMailOptions);
-      console.log("Mail sent successfully!");
-    } catch(err) {
-      console.log("Mail send failed: ", err);
+      await sgMail.send(userMail);
+      await sgMail.send(adminMail);
+      console.log("📧 Cancellation emails sent");
+    } catch (mailErr) {
+      console.error("❌ SendGrid Mail Error:");
+
+      if (mailErr.response && mailErr.response.body) {
+        console.error(JSON.stringify(mailErr.response.body, null, 2));
+      } else {
+        console.error(mailErr.message);
+      }
     }
 
     res.json({ message: "Order cancelled and emails sent", order });
