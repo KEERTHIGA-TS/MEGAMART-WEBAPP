@@ -5,19 +5,7 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 const nodemailer = require("nodemailer");
-const { google } = require("googleapis");
 
-const OAuth2 = google.auth.OAuth2;
-
-const oauth2Client = new OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  "https://developers.google.com/oauthplayground"
-);
-
-oauth2Client.setCredentials({
-  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-});
 
 // Place Order
 router.post("/", async (req, res) => {
@@ -66,19 +54,16 @@ router.post("/", async (req, res) => {
     const populatedOrder = await Order.findById(order._id)
     .populate("userId");
 
-    const accessToken = await oauth2Client.getAccessToken();
-
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
       auth: {
-        type: "OAuth2",
-        user: process.env.GOOGLE_MAIL,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-        accessToken: accessToken.token,
+        user: "apikey",
+        pass: process.env.BREVO_SMTP_KEY,
       },
     });
+
 
     const placedTime=order.placedAt.toLocaleString("en-IN", {
   timeZone: "Asia/Kolkata",
@@ -86,7 +71,7 @@ router.post("/", async (req, res) => {
 
     // CUSTOMER MAIL
     const mailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
+      from: `MegaMart <${process.env.BREVO_MAIL}>`,
       to: populatedOrder.userId.email,
       subject: "🛒 Order Confirmation - MegaMart",
       html: `
@@ -128,8 +113,8 @@ router.post("/", async (req, res) => {
 
     // ADMIN MAIL
     const adminMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
-      to: process.env.GOOGLE_MAIL,
+      from: `MegaMart <${process.env.BREVO_MAIL}>`,
+      to: process.env.BREVO_MAIL,
       subject: "📦 New Order Received",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
@@ -204,17 +189,13 @@ router.patch("/:id/cancel", async (req, res) => {
     await order.save();
 
 
-    const accessToken = await oauth2Client.getAccessToken();
-
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
       auth: {
-        type: "OAuth2",
-        user: process.env.GOOGLE_MAIL,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-        accessToken: accessToken.token,
+        user: "apikey",
+        pass: process.env.BREVO_SMTP_KEY,
       },
     });
 
@@ -225,7 +206,7 @@ router.patch("/:id/cancel", async (req, res) => {
 
     // User cancel mail
     const userMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
+      from: `MegaMart <${process.env.BREVO_MAIL}>`,
       to: order.userId.email,
       subject: "❌ Order Cancelled - MegaMart",
       html: `
@@ -267,8 +248,8 @@ router.patch("/:id/cancel", async (req, res) => {
 
     // Admin cancel mail
     const adminMailOptions = {
-      from: `MegaMart <${process.env.GOOGLE_MAIL}>`,
-      to: process.env.GOOGLE_MAIL,
+      from: `MegaMart <${process.env.BREVO_MAIL}>`,
+      to: process.env.BREVO_MAIL,
       subject: `⚠️ Order Cancelled: ${order._id}`,
       html: `
         <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
