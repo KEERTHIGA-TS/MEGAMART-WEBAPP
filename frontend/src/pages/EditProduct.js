@@ -129,7 +129,11 @@ const EditProduct = () => {
       />
       {product.image && (
         <img
-          src={`${BASE_URL}${product.image}`} // Cloudinary full URL already
+          src={
+                product.image?.startsWith("http")
+                  ? product.image               // Cloudinary
+                  : `${BASE_URL}${product.image}` // Old local images
+          }
           alt="Preview"
           style={{ width: "150px", marginTop: "10px" }}
           class = "edit-img"
