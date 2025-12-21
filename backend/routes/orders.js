@@ -164,7 +164,7 @@ router.post("/", async (req, res) => {
       await transporter.sendMail(adminMailOptions);
       console.log("Mail sent successfully!");
     } catch(err) {
-      console.log("Mail send fail da: ", err.message);
+      console.log("Mail send failed: ", err);
     }
 
     res.status(201).json({ message: "Order placed", order });
@@ -239,7 +239,7 @@ router.patch("/:id/cancel", async (req, res) => {
       await transporter.sendMail(adminMailOptions);
       console.log("Mail sent successfully!");
     } catch(err) {
-      console.log("Mail send fail da: ", err.message);
+      console.log("Mail send failed: ", err);
     }
 
     res.json({ message: "Order cancelled and emails sent", order });
