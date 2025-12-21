@@ -259,19 +259,19 @@ router.patch("/:id/cancel", async (req, res) => {
             </thead>
 
             <tbody>
-              ${products.map(p => `
+              ${order.products.map(item => `
                 <tr>
-                  <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
-                    ${p.name}
+                  <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
+                    ${item.productId.name}
                   </td>
-                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
-                    ₹${p.price}
+                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                    ₹${item.productId.price.toLocaleString("en-IN")}
                   </td>
-                  <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
-                    ${p.quantity}
+                  <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
+                    ${item.quantity}
                   </td>
-                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
-                    ₹${p.price * p.quantity}
+                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                    ₹${(item.productId.price * item.quantity).toLocaleString("en-IN")}
                   </td>
                 </tr>
               `).join("")}
@@ -334,24 +334,23 @@ router.patch("/:id/cancel", async (req, res) => {
             </thead>
 
             <tbody>
-              ${products.map(p => `
+              ${order.products.map(item => `
                 <tr>
-                  <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
-                    ${p.name}
+                  <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
+                    ${item.productId.name}
                   </td>
-                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
-                    ₹${p.price}
+                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                    ₹${item.productId.price.toLocaleString("en-IN")}
                   </td>
-                  <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
-                    ${p.quantity}
+                  <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
+                    ${item.quantity}
                   </td>
-                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
-                    ₹${p.price * p.quantity}
+                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                    ₹${(item.productId.price * item.quantity).toLocaleString("en-IN")}
                   </td>
                 </tr>
               `).join("")}
             </tbody>
-
 </table>
 
 
