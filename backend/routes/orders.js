@@ -309,7 +309,7 @@ router.patch("/:id/cancel", async (req, res) => {
     };
 
     try {
-      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(userMailOptions);
       await transporter.sendMail(adminMailOptions);
       console.log("Mail sent successfully!");
     } catch(err) {
