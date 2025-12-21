@@ -10,6 +10,7 @@ const SibApiV3Sdk = require("sib-api-v3-sdk");
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 defaultClient.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 const brevoClient = new SibApiV3Sdk.TransactionalEmailsApi();
+console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
 
 // Helper function to send transactional email
 const sendEmail = async ({ to, subject, html }) => {
