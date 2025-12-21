@@ -5,6 +5,19 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
+
+const OAuth2 = google.auth.OAuth2;
+
+const oauth2Client = new OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  "https://developers.google.com/oauthplayground"
+);
+
+oauth2Client.setCredentials({
+  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+});
 
 // Place Order
 router.post("/", async (req, res) => {
@@ -53,11 +66,17 @@ router.post("/", async (req, res) => {
     const populatedOrder = await Order.findById(order._id)
     .populate("userId");
 
+    const accessToken = await oauth2Client.getAccessToken();
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
+        type: "OAuth2",
         user: process.env.GOOGLE_MAIL,
-        pass: process.env.GOOGLE_PASS,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+        accessToken: accessToken.token,
       },
     });
 
@@ -179,13 +198,20 @@ router.patch("/:id/cancel", async (req, res) => {
     await order.save();
 
 
+    const accessToken = await oauth2Client.getAccessToken();
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
+        type: "OAuth2",
         user: process.env.GOOGLE_MAIL,
-        pass: process.env.GOOGLE_PASS,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+        accessToken: accessToken.token,
       },
     });
+
 
     const cancelledTime=order.cancelledAt.toLocaleString("en-IN", {
   timeZone: "Asia/Kolkata",
