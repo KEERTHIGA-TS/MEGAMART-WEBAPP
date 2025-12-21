@@ -168,8 +168,14 @@ router.post("/", async (req, res) => {
       `
     };
 
-    transporter.sendMail(mailOptions);
-    transporter.sendMail(adminMailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(adminMailOptions);
+      console.log("Mail sent successfully!");
+    } catch(err) {
+      console.log("Mail send fail da: ", err.message);
+    }
+
 
     res.status(201).json({ message: "Order placed", order });
   } catch (err) {
@@ -302,8 +308,14 @@ router.patch("/:id/cancel", async (req, res) => {
       `
     };
 
-    transporter.sendMail(userMailOptions);
-    transporter.sendMail(adminMailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(adminMailOptions);
+      console.log("Mail sent successfully!");
+    } catch(err) {
+      console.log("Mail send fail da: ", err.message);
+    }
+
 
     res.json({ message: "Order cancelled and emails sent", order });
   } catch (err) {
