@@ -4,19 +4,33 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
+// Initialize Brevo client
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+defaultClient.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
+const brevoClient = new SibApiV3Sdk.TransactionalEmailsApi();
 
-// Place Order
+// Helper function to send transactional email
+const sendEmail = async ({ to, subject, html }) => {
+  const email = new SibApiV3Sdk.SendSmtpEmail({
+    sender: { name: "MegaMart", email: process.env.BREVO_MAIL },
+    to: [{ email: to }],
+    subject,
+    htmlContent: html,
+  });
+
+  return brevoClient.sendTransacEmail(email);
+};
+
+// -------------------
+// PLACE ORDER ROUTE
+// -------------------
 router.post("/", async (req, res) => {
   try {
     const { userId, products, address, paymentMethod } = req.body;
 
     const customer = await User.findById(userId);
-    // console.log("userId: ",userId);
-    console.log("product: ",products);
-    
-    
     if (!customer) return res.status(404).json({ error: "User not found" });
 
     let total = 0;
@@ -41,126 +55,94 @@ router.post("/", async (req, res) => {
       address,
       paymentMethod,
       totalAmount: total,
+      placedAt: new Date(),
     });
-    order.placedAt = new Date();
     await order.save();
 
-    await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { items: [] } }
-    );
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
+    const placedTime = order.placedAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-    const populatedOrder = await Order.findById(order._id)
-    .populate("userId");
+    // Email HTML
+    const customerHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+        <h2 style="color: #4CAF50;">✅ Thank you for shopping with MegaMart!</h2>
+        <p>Hi <strong>${customer.username}</strong>, your order <strong>${order._id}</strong> was placed successfully.</p>
+        <p><strong>Placed on:</strong> ${placedTime}</p>
+        <h3>📍 Delivery Address:</h3>
+        <p>
+          ${address.fullName}<br/>
+          ${address.phone}<br/>
+          ${address.street}, ${address.city} - ${address.zip}<br/>
+        </p>
+        <h3>🛍️ Order Summary:</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead><tr style="background:#eee">
+            <th style="padding:8px;">Name</th>
+            <th style="padding:8px;">Price</th>
+            <th style="padding:8px;">Quantity</th>
+            <th style="padding:8px;">Amount</th>
+          </tr></thead>
+          <tbody>
+            ${products.map(p => `
+              <tr>
+                <td style="padding:8px;">${p.name}</td>
+                <td style="padding:8px;">${p.price}</td>
+                <td style="padding:8px;">${p.quantity}</td>
+                <td style="padding:8px;">${p.quantity*p.price}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+        <p><strong>Payment:</strong> ${paymentMethod}</p>
+        <p><strong>Total Paid:</strong> ₹${total.toLocaleString()}</p>
+        <hr />
+        <p style="text-align:center;">🧡 Thank you for shopping with us!</p>
+      </div>
+    `;
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_MAIL,
-        pass: process.env.BREVO_SMTP_KEY,
-      },
-    });
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+        <h2 style="color: #FF5722;">📦 New Order Received</h2>
+        <p><strong>Customer name:</strong> ${customer.username}</p>
+        <p><strong>Email:</strong> ${customer.email}</p>
+        <p><strong>Order ID:</strong> ${order._id}</p>
+        <p><strong>Placed on:</strong> ${placedTime}</p>
+        <h3>📍 Delivery Address:</h3>
+        <p>
+          ${address.fullName}<br/>
+          ${address.phone}<br/>
+          ${address.street}, ${address.city} - ${address.zip}<br/>
+        </p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead><tr style="background:#eee">
+            <th style="padding:8px;">Name</th>
+            <th style="padding:8px;">Price</th>
+            <th style="padding:8px;">Quantity</th>
+            <th style="padding:8px;">Amount</th>
+          </tr></thead>
+          <tbody>
+            ${products.map(p => `
+              <tr>
+                <td style="padding:8px;">${p.name}</td>
+                <td style="padding:8px;">${p.price}</td>
+                <td style="padding:8px;">${p.quantity}</td>
+                <td style="padding:8px;">${p.quantity*p.price}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+        <p><strong>Payment:</strong> ${paymentMethod}</p>
+        <p><strong>Total:</strong> ₹${total.toLocaleString()}</p>
+      </div>
+    `;
 
-
-    const placedTime=order.placedAt.toLocaleString("en-IN", {
-  timeZone: "Asia/Kolkata",
-});
-
-    // CUSTOMER MAIL
-    const mailOptions = {
-      from: `MegaMart <${process.env.BREVO_MAIL}>`,
-      to: populatedOrder.userId.email,
-      subject: "🛒 Order Confirmation - MegaMart",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
-          <h2 style="color: #4CAF50;">✅ Thank you for shopping with MegaMart!</h2>
-          <p>Hi <strong>${customer.username}</strong>, your order <strong>${order._id}</strong> was placed successfully.</p>
-          <p><strong>Placed on:</strong> ${placedTime}</p>
-          <h3>📍 Delivery Address:</h3>
-          <p>
-            ${address.fullName}<br/>
-            ${address.phone}<br/>
-            ${address.street}, ${address.city} - ${address.zip}<br/>
-          </p>
-          <h3>🛍️ Order Summary:</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background:#eee">
-              <th style="padding:8px;">Name</th>
-              <th style="padding:8px;">Price</th>
-              <th style="padding:8px;">Quantity</th>
-              <th style="padding:8px;">Amount</th>
-            </tr></thead>
-            <tbody>
-              ${products.map(p => `
-                <tr>
-                  <td style="padding:8px;">${p.name}</td>
-                  <td style="padding:8px;">${p.price}</td>
-                  <td style="padding:8px;">${p.quantity}</td>
-                  <td style="padding:8px;">${(p.quantity*p.price)}</td>
-                </tr>`).join("")}
-            </tbody>
-          </table>
-          <p><strong>Payment:</strong> ${paymentMethod}</p>
-          <p><strong>Total Paid:</strong> ₹${total.toLocaleString()}</p>
-          <hr />
-          <p style="text-align:center;">🧡 Thank you for shopping with us!</p>
-        </div>
-      `
-    };
-
-    // ADMIN MAIL
-    const adminMailOptions = {
-      from: `MegaMart <${process.env.BREVO_MAIL}>`,
-      to: process.env.BREVO_MAIL,
-      subject: "📦 New Order Received",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
-          <h2 style="color: #FF5722;">📦 New Order Received</h2>
-          <p><strong>Customer name:</strong> ${customer.username}</p>
-          <p><strong>Email-id:</strong>(${customer.email})</p>
-          <p><strong>Order ID:</strong> ${order._id}</p>
-          <p><strong>Placed on:</strong> ${placedTime}</p>
-          <h3>📍 Delivery Address:</h3>
-          <p>
-            ${address.fullName}<br/>
-            ${address.phone}<br/>
-            ${address.street}, ${address.city} - ${address.zip}<br/>
-          </p>
-
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background:#eee">
-              <th style="padding:8px;">Name</th>
-              <th style="padding:8px;">Price</th>
-              <th style="padding:8px;">Quantity</th>
-              <th style="padding:8px;">Amount</th>
-            </tr></thead>
-            <tbody>
-              ${products.map(p => `
-                <tr>
-                  <td style="padding:8px;">${p.name}</td>
-                  <td style="padding:8px;">${p.price}</td>
-                  <td style="padding:8px;">${p.quantity}</td>
-                  <td style="padding:8px;">${(p.quantity*p.price)}</td>
-                </tr>`).join("")}
-            </tbody>
-          </table>
-          <p><strong>Payment:</strong> ${paymentMethod}</p>
-          <p><strong>Total:</strong> ₹${total.toLocaleString()}</p>
-        </div>
-      `
-    };
-
+    // Send emails
     try {
-      await transporter.sendMail(mailOptions);
-      await transporter.sendMail(adminMailOptions);
-      console.log("Mail sent successfully!");
-    } catch(err) {
-      console.log("Mail send failed: ", err);
+      await sendEmail({ to: customer.email, subject: "🛒 Order Confirmation - MegaMart", html: customerHtml });
+      await sendEmail({ to: process.env.BREVO_MAIL, subject: "📦 New Order Received", html: adminHtml });
+      console.log("Emails sent successfully!");
+    } catch (err) {
+      console.log("Email send failed:", err);
     }
-
 
     res.status(201).json({ message: "Order placed", order });
   } catch (err) {
@@ -169,18 +151,20 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Cancel Order
+// -------------------
+// CANCEL ORDER ROUTE
+// -------------------
 router.patch("/:id/cancel", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate("userId")
       .populate("products.productId");
-    //console.log("Order Populated: ",order);
     if (!order) return res.status(404).json({ error: "Order not found" });
 
+    // Restore stock
     for (let item of order.products) {
       const product = item.productId;
-      product.stock += item.quantity; // Restore stock
+      product.stock += item.quantity;
       await product.save();
     }
 
@@ -188,115 +172,82 @@ router.patch("/:id/cancel", async (req, res) => {
     order.cancelledAt = new Date();
     await order.save();
 
+    const cancelledTime = order.cancelledAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_MAIL,
-        pass: process.env.BREVO_SMTP_KEY,
-      },
-    });
-
-
-    const cancelledTime=order.cancelledAt.toLocaleString("en-IN", {
-  timeZone: "Asia/Kolkata",
-});
-
-    // User cancel mail
-    const userMailOptions = {
-      from: `MegaMart <${process.env.BREVO_MAIL}>`,
-      to: order.userId.email,
-      subject: "❌ Order Cancelled - MegaMart",
-      html: `
-        <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
-          <h2 style="color:#ff0000;">❌ Order Cancelled</h2>
-          <p>Hi <strong>${order.userId.username}</strong>, your order <strong>${order._id}</strong> has been cancelled.</p>
-          <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
-          <h3>📍 Delivery Address:</h3>
-          <p>
-            ${order.address.fullName}<br/>
-            ${order.address.phone}<br/>
-            ${order.address.street}, ${order.address.city} - ${order.address.zip}<br/>
-          </p>
-
-          <h3>🛍️ Products:</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background:#eee;">
-              <th style="padding:8px;">Name</th>
-              <th style="padding:8px;">Price</th>
-              <th style="padding:8px;">Quantity</th>
-              <th style="padding:8px;">Amount</th>
-            </tr></thead>
-            <tbody>
-              ${order.products.map(item => `
+    const userHtml = `
+      <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
+        <h2 style="color:#ff0000;">❌ Order Cancelled</h2>
+        <p>Hi <strong>${order.userId.username}</strong>, your order <strong>${order._id}</strong> has been cancelled.</p>
+        <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
+        <h3>📍 Delivery Address:</h3>
+        <p>
+          ${order.address.fullName}<br/>
+          ${order.address.phone}<br/>
+          ${order.address.street}, ${order.address.city} - ${order.address.zip}<br/>
+        </p>
+        <h3>🛍️ Products:</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead><tr style="background:#eee;">
+            <th style="padding:8px;">Name</th>
+            <th style="padding:8px;">Price</th>
+            <th style="padding:8px;">Quantity</th>
+            <th style="padding:8px;">Amount</th>
+          </tr></thead>
+          <tbody>
+            ${order.products.map(item => `
               <tr>
                 <td style="padding:8px;">${item.productId.name}</td>
                 <td style="padding:8px;">${item.productId.price}</td>
                 <td style="padding:8px;">${item.quantity}</td>
                 <td style="padding:8px;">${item.quantity * item.productId.price}</td>
               </tr>`).join("")}
+          </tbody>
+        </table>
+        <p><strong>Refund:</strong> Will be initiated soon if applicable.</p>
+      </div>
+    `;
 
-            </tbody>
-          </table>
-
-          <p><strong>Refund:</strong> Will be initiated soon if applicable.</p>
-        </div>
-      `
-    };
-
-    // Admin cancel mail
-    const adminMailOptions = {
-      from: `MegaMart <${process.env.BREVO_MAIL}>`,
-      to: process.env.BREVO_MAIL,
-      subject: `⚠️ Order Cancelled: ${order._id}`,
-      html: `
-        <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
-          <h2 style="color:#ff0000;">⚠️ Order Cancelled</h2>
-          <p><strong>Order ID:</strong> ${order._id}</p>
-          <p><strong>Customer name:</strong> ${order.userId.username}</p>
-          <p><strong>Email-id:</strong>(${order.userId.email})</p>
-          <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
-
-          <h3>📍 Delivery Address:</h3>
-          <p>
-            ${order.address.fullName}<br/>
-            ${order.address.phone}<br/>
-            ${order.address.street}, ${order.address.city} - ${order.address.zip}<br/>
-          </p>
-
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background:#eee;">
-              <th style="padding:8px;">Name</th>
-              <th style="padding:8px;">Price</th>
-              <th style="padding:8px;">Quantity</th>
-              <th style="padding:8px;">Amount</th>
-            </tr></thead>
-            <tbody>
-              ${order.products.map(item => `
-                <tr>
+    const adminHtml = `
+      <div style="font-family: Arial; max-width: 600px; margin: auto; padding: 20px;">
+        <h2 style="color:#ff0000;">⚠️ Order Cancelled</h2>
+        <p><strong>Order ID:</strong> ${order._id}</p>
+        <p><strong>Customer name:</strong> ${order.userId.username}</p>
+        <p><strong>Email:</strong> ${order.userId.email}</p>
+        <p><strong>Cancelled On:</strong> ${cancelledTime}</p>
+        <h3>📍 Delivery Address:</h3>
+        <p>
+          ${order.address.fullName}<br/>
+          ${order.address.phone}<br/>
+          ${order.address.street}, ${order.address.city} - ${order.address.zip}<br/>
+        </p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead><tr style="background:#eee;">
+            <th style="padding:8px;">Name</th>
+            <th style="padding:8px;">Price</th>
+            <th style="padding:8px;">Quantity</th>
+            <th style="padding:8px;">Amount</th>
+          </tr></thead>
+          <tbody>
+            ${order.products.map(item => `
+              <tr>
                 <td style="padding:8px;">${item.productId.name}</td>
                 <td style="padding:8px;">${item.productId.price}</td>
                 <td style="padding:8px;">${item.quantity}</td>
                 <td style="padding:8px;">${item.quantity * item.productId.price}</td>
               </tr>`).join("")}
-            </tbody>
-          </table>
-
-          <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-        </div>
-      `
-    };
+          </tbody>
+        </table>
+        <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+      </div>
+    `;
 
     try {
-      await transporter.sendMail(userMailOptions);
-      await transporter.sendMail(adminMailOptions);
-      console.log("Mail sent successfully!");
-    } catch(err) {
-      console.log("Mail send failed: ", err);
+      await sendEmail({ to: order.userId.email, subject: "❌ Order Cancelled - MegaMart", html: userHtml });
+      await sendEmail({ to: process.env.BREVO_MAIL, subject: `⚠️ Order Cancelled: ${order._id}`, html: adminHtml });
+      console.log("Cancellation emails sent successfully!");
+    } catch (err) {
+      console.log("Email send failed:", err);
     }
-
 
     res.json({ message: "Order cancelled and emails sent", order });
   } catch (err) {
@@ -305,7 +256,9 @@ router.patch("/:id/cancel", async (req, res) => {
   }
 });
 
-// Get Orders
+// -------------------
+// GET USER ORDERS
+// -------------------
 router.get("/user/:userId", async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId })
