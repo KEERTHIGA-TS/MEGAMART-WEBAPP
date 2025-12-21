@@ -67,23 +67,46 @@ router.post("/", async (req, res) => {
         ${address.street}, ${address.city} - ${address.zip}</p>
 
         <h3>🛍️ Order Summary</h3>
-        <table style="width:100%;border-collapse:collapse">
+        <table width="100%" cellpadding="0" cellspacing="0" 
+              style="border-collapse:collapse; margin-top:10px;">
+
           <thead>
-            <tr style="background:#eee">
-              <th>Name</th><th>Price</th><th>Qty</th><th>Amount</th>
+            <tr style="background:#f2f2f2;">
+              <th align="left"  width="40%" style="padding:10px; font-size:14px;">
+                Name
+              </th>
+              <th align="right" width="20%" style="padding:10px; font-size:14px;">
+                Price
+              </th>
+              <th align="center" width="15%" style="padding:10px; font-size:14px;">
+                Qty
+              </th>
+              <th align="right" width="25%" style="padding:10px; font-size:14px;">
+                Amount
+              </th>
             </tr>
           </thead>
+
           <tbody>
             ${products.map(p => `
               <tr>
-                <td>${p.name}</td>
-                <td>₹${p.price}</td>
-                <td>${p.quantity}</td>
-                <td>₹${p.price * p.quantity}</td>
-              </tr>`).join("")}
+                <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
+                  ${p.name}
+                </td>
+                <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                  ₹${p.price}
+                </td>
+                <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
+                  ${p.quantity}
+                </td>
+                <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                  ₹${p.price * p.quantity}
+                </td>
+              </tr>
+            `).join("")}
           </tbody>
-        </table>
 
+        </table>
         <p><strong>Payment:</strong> ${paymentMethod}</p>
         <p><strong>Total Paid:</strong> ₹${total.toLocaleString()}</p>
         <hr/>
@@ -109,22 +132,46 @@ router.post("/", async (req, res) => {
         <p>${address.street}, ${address.city} - ${address.zip}</p>
 
         <h3>🛒 Items</h3>
-        <table style="width:100%;border-collapse:collapse">
-          <thead>
-            <tr style="background:#eee">
-              <th>Name</th><th>Price</th><th>Qty</th><th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${products.map(p => `
-              <tr>
-                <td>${p.name}</td>
-                <td>₹${p.price}</td>
-                <td>${p.quantity}</td>
-                <td>₹${p.price * p.quantity}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" 
+      style="border-collapse:collapse; margin-top:10px;">
+
+  <thead>
+    <tr style="background:#f2f2f2;">
+      <th align="left"  width="40%" style="padding:10px; font-size:14px;">
+        Name
+      </th>
+      <th align="right" width="20%" style="padding:10px; font-size:14px;">
+        Price
+      </th>
+      <th align="center" width="15%" style="padding:10px; font-size:14px;">
+        Qty
+      </th>
+      <th align="right" width="25%" style="padding:10px; font-size:14px;">
+        Amount
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    ${products.map(p => `
+      <tr>
+        <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
+          ${p.name}
+        </td>
+        <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+          ₹${p.price}
+        </td>
+        <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
+          ${p.quantity}
+        </td>
+        <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+          ₹${p.price * p.quantity}
+        </td>
+      </tr>
+    `).join("")}
+  </tbody>
+
+</table>
 
         <p><strong>Payment:</strong> ${paymentMethod}</p>
         <p><strong>Total:</strong> ₹${total.toLocaleString()}</p>
@@ -191,26 +238,47 @@ router.patch("/:id/cancel", async (req, res) => {
           </p>
 
           <h3>🛍️ Cancelled Order Summary:</h3>
-          <table style="width:100%; border-collapse: collapse;">
+          <table width="100%" cellpadding="0" cellspacing="0" 
+       style="border-collapse:collapse; margin-top:10px;">
+
             <thead>
-              <tr style="background:#eee">
-                <th style="padding:8px;">Name</th>
-                <th style="padding:8px;">Price</th>
-                <th style="padding:8px;">Qty</th>
-                <th style="padding:8px;">Amount</th>
+              <tr style="background:#f2f2f2;">
+                <th align="left"  width="40%" style="padding:10px; font-size:14px;">
+                  Name
+                </th>
+                <th align="right" width="20%" style="padding:10px; font-size:14px;">
+                  Price
+                </th>
+                <th align="center" width="15%" style="padding:10px; font-size:14px;">
+                  Qty
+                </th>
+                <th align="right" width="25%" style="padding:10px; font-size:14px;">
+                  Amount
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              ${order.products.map(p => `
+              ${products.map(p => `
                 <tr>
-                  <td style="padding:8px;">${p.productId.name}</td>
-                  <td style="padding:8px;">₹${p.productId.price}</td>
-                  <td style="padding:8px;">${p.quantity}</td>
-                  <td style="padding:8px;">₹${p.productId.price * p.quantity}</td>
+                  <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
+                    ${p.name}
+                  </td>
+                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                    ₹${p.price}
+                  </td>
+                  <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
+                    ${p.quantity}
+                  </td>
+                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                    ₹${p.price * p.quantity}
+                  </td>
                 </tr>
               `).join("")}
             </tbody>
+
           </table>
+
 
           <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
           <p><strong>Total Refunded / Not Charged:</strong> ₹${order.totalAmount.toLocaleString()}</p>
@@ -245,26 +313,47 @@ router.patch("/:id/cancel", async (req, res) => {
           </p>
 
           <h3>🛍️ Cancelled Items:</h3>
-          <table style="width:100%; border-collapse: collapse;">
+          <table width="100%" cellpadding="0" cellspacing="0" 
+       style="border-collapse:collapse; margin-top:10px;">
+
             <thead>
-              <tr style="background:#eee">
-                <th style="padding:8px;">Product</th>
-                <th style="padding:8px;">Price</th>
-                <th style="padding:8px;">Qty</th>
-                <th style="padding:8px;">Amount</th>
+              <tr style="background:#f2f2f2;">
+                <th align="left"  width="40%" style="padding:10px; font-size:14px;">
+                  Name
+                </th>
+                <th align="right" width="20%" style="padding:10px; font-size:14px;">
+                  Price
+                </th>
+                <th align="center" width="15%" style="padding:10px; font-size:14px;">
+                  Qty
+                </th>
+                <th align="right" width="25%" style="padding:10px; font-size:14px;">
+                  Amount
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              ${order.products.map(p => `
+              ${products.map(p => `
                 <tr>
-                  <td style="padding:8px;">${p.productId.name}</td>
-                  <td style="padding:8px;">₹${p.productId.price}</td>
-                  <td style="padding:8px;">${p.quantity}</td>
-                  <td style="padding:8px;">₹${p.productId.price * p.quantity}</td>
+                  <td align="left" style="padding:10px; border-bottom:1px solid #eee;">
+                    ${p.name}
+                  </td>
+                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                    ₹${p.price}
+                  </td>
+                  <td align="center" style="padding:10px; border-bottom:1px solid #eee;">
+                    ${p.quantity}
+                  </td>
+                  <td align="right" style="padding:10px; border-bottom:1px solid #eee;">
+                    ₹${p.price * p.quantity}
+                  </td>
                 </tr>
               `).join("")}
             </tbody>
-          </table>
+
+</table>
+
 
           <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
           <p><strong>Total Amount:</strong> ₹${order.totalAmount.toLocaleString()}</p>
