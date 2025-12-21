@@ -59,7 +59,7 @@ router.post("/", async (req, res) => {
       port: 587,
       secure: false,
       auth: {
-        user: "apikey",
+        user: process.env.BREVO_MAIL,
         pass: process.env.BREVO_SMTP_KEY,
       },
     });
@@ -158,7 +158,7 @@ router.post("/", async (req, res) => {
       await transporter.sendMail(adminMailOptions);
       console.log("Mail sent successfully!");
     } catch(err) {
-      console.log("Mail send fail da: ", err.message);
+      console.log("Mail send failed: ", err);
     }
 
 
@@ -194,7 +194,7 @@ router.patch("/:id/cancel", async (req, res) => {
       port: 587,
       secure: false,
       auth: {
-        user: "apikey",
+        user: process.env.BREVO_MAIL,
         pass: process.env.BREVO_SMTP_KEY,
       },
     });
@@ -294,7 +294,7 @@ router.patch("/:id/cancel", async (req, res) => {
       await transporter.sendMail(adminMailOptions);
       console.log("Mail sent successfully!");
     } catch(err) {
-      console.log("Mail send fail da: ", err.message);
+      console.log("Mail send failed: ", err);
     }
 
 
