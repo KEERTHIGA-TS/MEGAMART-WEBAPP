@@ -205,9 +205,12 @@ router.patch("/:id/cancel", async (req, res) => {
     if (!order) return res.status(404).json({ error: "Order not found" });
 
     for (let item of order.products) {
-      item.productId.stock += item.quantity;
-      await item.productId.save();
+      if (item.productId) {
+        item.productId.stock += item.quantity;
+        await item.productId.save();
+      }
     }
+
 
     order.status = "Cancelled";
     order.cancelledAt = new Date();
@@ -260,21 +263,21 @@ router.patch("/:id/cancel", async (req, res) => {
 
             <tbody>
               ${order.products.map(item => `
-                <tr>
-                  <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
-                    ${item.productId.name}
-                  </td>
-                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
-                    ₹${item.productId.price.toLocaleString("en-IN")}
-                  </td>
-                  <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
-                    ${item.quantity}
-                  </td>
-                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
-                    ₹${(item.productId.price * item.quantity).toLocaleString("en-IN")}
-                  </td>
-                </tr>
-              `).join("")}
+              <tr>
+                <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? item.productId.name : "Product Removed"}
+                </td>
+                <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? `₹${item.productId.price}` : "N/A"}
+                </td>
+                <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.quantity}
+                </td>
+                <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? `₹${item.productId.price * item.quantity}` : "N/A"}
+                </td>
+              </tr>
+            `).join("")}
             </tbody>
 
           </table>
@@ -335,21 +338,21 @@ router.patch("/:id/cancel", async (req, res) => {
 
             <tbody>
               ${order.products.map(item => `
-                <tr>
-                  <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
-                    ${item.productId.name}
-                  </td>
-                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
-                    ₹${item.productId.price.toLocaleString("en-IN")}
-                  </td>
-                  <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
-                    ${item.quantity}
-                  </td>
-                  <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
-                    ₹${(item.productId.price * item.quantity).toLocaleString("en-IN")}
-                  </td>
-                </tr>
-              `).join("")}
+              <tr>
+                <td align="left" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? item.productId.name : "Product Removed"}
+                </td>
+                <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? `₹${item.productId.price}` : "N/A"}
+                </td>
+                <td align="center" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.quantity}
+                </td>
+                <td align="right" style="padding:10px;border-bottom:1px solid #eee;">
+                  ${item.productId ? `₹${item.productId.price * item.quantity}` : "N/A"}
+                </td>
+              </tr>
+            `).join("")}
             </tbody>
 </table>
 

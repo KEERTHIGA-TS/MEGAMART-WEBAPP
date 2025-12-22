@@ -53,14 +53,20 @@ const MyOrders = ({ user }) => {
             <ul className="order-product-list">
               {order.products.map((p, i) => (
                 <li key={i} className="order-product-item">
-                  <img
-                    src={`${BASE_URL}${p.productId.image}`}
-                    alt={p.productId.name}
-                    className="product-image"
-                  />
+                  {p.productId ? (
+                    <img
+                      src={`${BASE_URL}${p.productId.image}`}
+                      alt={p.productId.name}
+                      className="product-image"
+                    />
+                  ) : (
+                    <div className="product-image missing">
+                      Product Removed
+                    </div>
+                  )}
                   <div className="product-info">
-                    <p><b>{p.productId.name}</b></p>
-                    <p>Price: ₹{p.productId.price} × {p.quantity}</p>
+                    <p><b>{p.productId?.name || "Product not available"}</b></p>
+                    <p>Price: ₹{p.productId?.price ?? "N/A"} × {p.quantity}</p>
                   </div>
                 </li>
               ))}
