@@ -1,5 +1,5 @@
 // AddProduct.js
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify"; 
 
@@ -14,6 +14,8 @@ const AddProduct = () => {
   const [discount, setDiscount] = useState("");
   const [stock, setStock] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = useRef(null);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,6 +53,9 @@ const AddProduct = () => {
       setDiscount("");
       setStock("");
       setImageFile(null);
+      if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+}
     } catch (err) {
         console.log("Upload error full:", err);
         console.log("Response data:", err.response?.data);
@@ -75,6 +80,7 @@ const AddProduct = () => {
       <input
         type="file"
         accept="image/*"
+        ref={fileInputRef}
         onChange={e => setImageFile(e.target.files[0])}
         
       />
