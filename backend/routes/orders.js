@@ -180,25 +180,35 @@ router.post("/", async (req, res) => {
     };
 
     try {
-      await resend.emails.send({
-        from: "onboarding@resend.dev",
+      console.log("📤 Sending ORDER email to customer:", customer.email);
+      console.log("📤 Sending ORDER email to admin:", process.env.FROM_EMAIL);
+
+      const customerResponse = await resend.emails.send({
+        from: process.env.FROM_EMAIL,   // use verified email
         to: customer.email,
         subject: customerMail.subject,
         html: customerMail.html,
       });
 
-      await resend.emails.send({
-        from: "onboarding@resend.dev",
+      console.log("✅ Customer mail response:", customerResponse);
+
+      const adminResponse = await resend.emails.send({
+        from: process.env.FROM_EMAIL,
         to: process.env.FROM_EMAIL,
         subject: adminMail.subject,
         html: adminMail.html,
       });
 
-      console.log("📧 Order emails sent");
-    } catch (mailErr) {
-      console.error("❌ Resend Error:", mailErr);
-    }
+      console.log("✅ Admin mail response:", adminResponse);
 
+      console.log("📧 Order emails sent successfully");
+
+    } catch (mailErr) {
+      console.error("❌ ORDER Resend Error:");
+      console.error("Status:", mailErr?.statusCode);
+      console.error("Message:", mailErr?.message);
+      console.error("Full Error:", JSON.stringify(mailErr, null, 2));
+    }
     res.status(201).json({ message: "Order placed", order });
   } catch (err) {
     console.error(err);
@@ -381,23 +391,34 @@ router.patch("/:id/cancel", async (req, res) => {
     };
 
     try {
-      await resend.emails.send({
-        from: "onboarding@resend.dev",
+      console.log("📤 Sending CANCEL email to customer:", order.userId.email);
+      console.log("📤 Sending CANCEL email to admin:", process.env.FROM_EMAIL);
+
+      const userResponse = await resend.emails.send({
+        from: process.env.FROM_EMAIL,
         to: order.userId.email,
         subject: userMail.subject,
         html: userMail.html,
       });
 
-      await resend.emails.send({
-        from: "onboarding@resend.dev",
+      console.log("✅ Cancel user mail response:", userResponse);
+
+      const adminResponse = await resend.emails.send({
+        from: process.env.FROM_EMAIL,
         to: process.env.FROM_EMAIL,
         subject: adminMail.subject,
         html: adminMail.html,
       });
 
-      console.log("📧 Cancellation emails sent");
+      console.log("✅ Cancel admin mail response:", adminResponse);
+
+      console.log("📧 Cancellation emails sent successfully");
+
     } catch (mailErr) {
-      console.error("❌ Resend Error:", mailErr);
+      console.error("❌ CANCEL Resend Error:");
+      console.error("Status:", mailErr?.statusCode);
+      console.error("Message:", mailErr?.message);
+      console.error("Full Error:", JSON.stringify(mailErr, null, 2));
     }
 
     res.json({ message: "Order cancelled", order });
