@@ -5,8 +5,9 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* ============================
    PLACE ORDER
@@ -179,11 +180,23 @@ router.post("/", async (req, res) => {
     };
 
     try {
-      await sgMail.send(customerMail);
-      await sgMail.send(adminMail);
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: customer.email,
+        subject: customerMail.subject,
+        html: customerMail.html,
+      });
+
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: process.env.FROM_EMAIL,
+        subject: adminMail.subject,
+        html: adminMail.html,
+      });
+
       console.log("📧 Order emails sent");
     } catch (mailErr) {
-      console.error("❌ SendGrid Error:", mailErr.response?.body || mailErr.message);
+      console.error("❌ Resend Error:", mailErr);
     }
 
     res.status(201).json({ message: "Order placed", order });
@@ -368,11 +381,23 @@ router.patch("/:id/cancel", async (req, res) => {
     };
 
     try {
-      await sgMail.send(userMail);
-      await sgMail.send(adminMail);
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: order.userId.email,
+        subject: userMail.subject,
+        html: userMail.html,
+      });
+
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: process.env.FROM_EMAIL,
+        subject: adminMail.subject,
+        html: adminMail.html,
+      });
+
       console.log("📧 Cancellation emails sent");
     } catch (mailErr) {
-      console.error("❌ SendGrid Error:", mailErr.response?.body || mailErr.message);
+      console.error("❌ Resend Error:", mailErr);
     }
 
     res.json({ message: "Order cancelled", order });
