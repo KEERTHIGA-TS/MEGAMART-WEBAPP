@@ -5,10 +5,13 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 
-const { Resend } = require("resend");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
+const brevoApi = new SibApiV3Sdk.TransactionalEmailsApi();
 /* ============================
    PLACE ORDER
 ============================ */
@@ -180,35 +183,33 @@ router.post("/", async (req, res) => {
     };
 
     try {
-      console.log("📤 Sending ORDER email to customer:", customer.email);
-      console.log("📤 Sending ORDER email to admin:", process.env.FROM_EMAIL);
+  console.log("📤 Sending ORDER email to customer:", customer.email);
+  console.log("📤 Sending ORDER email to admin:", process.env.FROM_EMAIL);
 
-      const customerResponse = await resend.emails.send({
-        from: process.env.FROM_EMAIL,   // use verified email
-        to: customer.email,
-        subject: customerMail.subject,
-        html: customerMail.html,
-      });
+  const customerEmail = new SibApiV3Sdk.SendSmtpEmail();
+  customerEmail.sender = { email: process.env.FROM_EMAIL, name: "MegaMart" };
+  customerEmail.to = [{ email: customer.email }];
+  customerEmail.subject = customerMail.subject;
+  customerEmail.htmlContent = customerMail.html;
 
-      console.log("✅ Customer mail response:", customerResponse);
+  const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
+  adminEmail.sender = { email: process.env.FROM_EMAIL, name: "MegaMart" };
+  adminEmail.to = [{ email: process.env.FROM_EMAIL }];
+  adminEmail.subject = adminMail.subject;
+  adminEmail.htmlContent = adminMail.html;
 
-      const adminResponse = await resend.emails.send({
-        from: process.env.FROM_EMAIL,
-        to: process.env.FROM_EMAIL,
-        subject: adminMail.subject,
-        html: adminMail.html,
-      });
+  const customerResponse = await brevoApi.sendTransacEmail(customerEmail);
+  console.log("✅ Customer mail response:", customerResponse.messageId);
 
-      console.log("✅ Admin mail response:", adminResponse);
+  const adminResponse = await brevoApi.sendTransacEmail(adminEmail);
+  console.log("✅ Admin mail response:", adminResponse.messageId);
 
-      console.log("📧 Order emails sent successfully");
+  console.log("📧 Order emails sent successfully via Brevo");
 
-    } catch (mailErr) {
-      console.error("❌ ORDER Resend Error:");
-      console.error("Status:", mailErr?.statusCode);
-      console.error("Message:", mailErr?.message);
-      console.error("Full Error:", JSON.stringify(mailErr, null, 2));
-    }
+} catch (mailErr) {
+  console.error("❌ ORDER Brevo Error:");
+  console.error(mailErr.response?.body || mailErr.message);
+}
     res.status(201).json({ message: "Order placed", order });
   } catch (err) {
     console.error(err);
@@ -391,35 +392,33 @@ router.patch("/:id/cancel", async (req, res) => {
     };
 
     try {
-      console.log("📤 Sending CANCEL email to customer:", order.userId.email);
-      console.log("📤 Sending CANCEL email to admin:", process.env.FROM_EMAIL);
+  console.log("📤 Sending CANCEL email to customer:", order.userId.email);
+  console.log("📤 Sending CANCEL email to admin:", process.env.FROM_EMAIL);
 
-      const userResponse = await resend.emails.send({
-        from: process.env.FROM_EMAIL,
-        to: order.userId.email,
-        subject: userMail.subject,
-        html: userMail.html,
-      });
+  const userEmail = new SibApiV3Sdk.SendSmtpEmail();
+  userEmail.sender = { email: process.env.FROM_EMAIL, name: "MegaMart" };
+  userEmail.to = [{ email: order.userId.email }];
+  userEmail.subject = userMail.subject;
+  userEmail.htmlContent = userMail.html;
 
-      console.log("✅ Cancel user mail response:", userResponse);
+  const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
+  adminEmail.sender = { email: process.env.FROM_EMAIL, name: "MegaMart" };
+  adminEmail.to = [{ email: process.env.FROM_EMAIL }];
+  adminEmail.subject = adminMail.subject;
+  adminEmail.htmlContent = adminMail.html;
 
-      const adminResponse = await resend.emails.send({
-        from: process.env.FROM_EMAIL,
-        to: process.env.FROM_EMAIL,
-        subject: adminMail.subject,
-        html: adminMail.html,
-      });
+  const userResponse = await brevoApi.sendTransacEmail(userEmail);
+  console.log("✅ Cancel user mail response:", userResponse.messageId);
 
-      console.log("✅ Cancel admin mail response:", adminResponse);
+  const adminResponse = await brevoApi.sendTransacEmail(adminEmail);
+  console.log("✅ Cancel admin mail response:", adminResponse.messageId);
 
-      console.log("📧 Cancellation emails sent successfully");
+  console.log("📧 Cancellation emails sent successfully via Brevo");
 
-    } catch (mailErr) {
-      console.error("❌ CANCEL Resend Error:");
-      console.error("Status:", mailErr?.statusCode);
-      console.error("Message:", mailErr?.message);
-      console.error("Full Error:", JSON.stringify(mailErr, null, 2));
-    }
+} catch (mailErr) {
+  console.error("❌ CANCEL Brevo Error:");
+  console.error(mailErr.response?.body || mailErr.message);
+}
 
     res.json({ message: "Order cancelled", order });
   } catch (err) {
