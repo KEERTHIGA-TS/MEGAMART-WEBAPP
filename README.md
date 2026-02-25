@@ -47,14 +47,17 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 
 ## 📸 Screenshots
 
-### Login & Register
-![Login](screenshots/login.png)
+### Login 
+![Login](screenshots/register.png)
 
-### Homepage
-![Homepage](screenshots/homepage.png)
+### Homepage (User View)
+![Homepage](screenshots/user-view.png)
 
-### Product Details
-![Product Page](screenshots/product.png)
+### Homepage (Admin View)
+![Homepage](screenshots/admin-view.png)
+
+### Product Info page
+![Product Page](screenshots/product-info.png)
 
 ### Cart
 ![Cart](screenshots/cart.png)
@@ -62,13 +65,19 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 ### Order Success Page
 ![Order Success](screenshots/order-success.png)
 
-### Admin Dashboard
-![Admin Dashboard](screenshots/admin.png)
+### Confirmation Mail
+![Cart](screenshots/confirmation-mail.png)
+
+### Order
+![Cart](screenshots/order.png)
+
+### Cancellation Mail
+![Cart](screenshots/cancellation-mail.png)
 
 ---
 
 ## 🚀 Live Demo
-🔗 https://your-live-demo-link.com  
+🔗 https://megamart-frontend-xfxy.onrender.com/
 
 ---
 
