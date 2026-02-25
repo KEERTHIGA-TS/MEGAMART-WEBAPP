@@ -59,7 +59,7 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 ### Product Info page
 ![Product Page](screenshots/product-info.png)
 
-### Cart
+### Cart Page
 ![Cart](screenshots/cart.png)
 
 ### Order Success Page
@@ -68,7 +68,7 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 ### Confirmation Mail
 ![Cart](screenshots/confirmation-mail.png)
 
-### Order
+### Order History 
 ![Cart](screenshots/order.png)
 
 ### Cancellation Mail
