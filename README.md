@@ -56,6 +56,12 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 ### Homepage (Admin View)
 ![Homepage](screenshots/admin-view.png)
 
+### Add Product (Admin View)
+![Homepage](screenshots/add-product.png)
+
+### Edit Product (Admin View)
+![Homepage](screenshots/edit-product.png)
+
 ### Product Info page
 ![Product Page](screenshots/product-info.png)
 
