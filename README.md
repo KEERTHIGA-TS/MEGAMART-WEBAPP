@@ -47,7 +47,7 @@ MegaMart is a full-stack e-commerce web application designed to provide a seamle
 
 ## 📸 Screenshots
 
-### Login 
+### Sign Up
 ![Login](screenshots/register.png)
 
 ### Homepage (User View)
